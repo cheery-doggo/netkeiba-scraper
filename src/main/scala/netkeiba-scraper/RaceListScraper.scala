@@ -27,17 +27,15 @@ object RaceListScraper {
     }
 
     // 5年分の日付のリストを作成する。
-    val to = LocalDate.now
-    val from = to.minusMonths(period)
+    val to            = LocalDate.now
+    val from          = to.minusMonths(period)
     val targetDateSeq = range(from, to)
 
     val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
 
     targetDateSeq
       .map { targetDate =>
-
         Thread.sleep(1000)
-
         val targetUrl = s"https://db.netkeiba.com/race/list/${targetDate.format(formatter)}/"
 
         "/race/\\d+/".r

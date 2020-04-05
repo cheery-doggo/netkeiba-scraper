@@ -15,7 +15,7 @@ import scala.xml.parsing.NoBindingFactoryAdapter
 
 object RaceScraper {
 
-  val mail = "enter your email address"
+  val mail     = "enter your email address"
   val password = "enter your password"
 
   def scrape() = {
@@ -107,7 +107,7 @@ object RowExtractor {
   }
 
   private def parseHtml(html: String) = {
-    val hp = new HtmlParser
+    val hp    = new HtmlParser
     val saxer = new NoBindingFactoryAdapter
     hp.setContentHandler(saxer)
     hp.parse(new InputSource(new StringReader(html)))
@@ -140,8 +140,7 @@ object RowExtractor {
       filter(file => FilenameUtils.getBaseName(file.getName).take(4) >= "2006").
       //以下のデータは壊れているので除外する。恐らくnetkeiba.comの不具合。
       filter(file => FilenameUtils.getBaseName(file.getName) != "200808020398")
-        .filter(file =>
-          FilenameUtils.getBaseName(file.getName) != "200808020399")
+        .filter(file => FilenameUtils.getBaseName(file.getName) != "200808020399")
         .toArray
         .reverse
 
@@ -166,7 +165,7 @@ object RowExtractor {
         val elem = parseHtml(rdHtml)
 
         val condition = elem.\\("span").text
-        val name = elem.\\("h1").text
+        val name      = elem.\\("h1").text
         (condition, name)
       }
 
@@ -212,7 +211,7 @@ object RowExtractor {
           (conditions.head
             .replaceAll(" ", "")
             .replaceAll("([^\\d]+)(\\d+)m", "$1,$2") +: conditions.tail) ++
-          Array(round.split(" ").head, fieldScore) ++ {
+          Array(round.split(" ").head,      fieldScore) ++ {
           val di = dateInfo.split(" ")
           di.take(2) :+ di.drop(2).mkString(" ")
         }).map(_.filter(_ != '?').replaceAll("(^\\h*)|(\\h*$)", ""))
@@ -250,11 +249,11 @@ object RowExtractor {
           .map {
             case (ticketStr, list) =>
               Payoff(
-                race_id = lastRowId,
-                ticket_type = Util.str2ticketType(ticketStr),
+                race_id      = lastRowId,
+                ticket_type  = Util.str2ticketType(ticketStr),
                 horse_number = list(0),
-                payoff = list(1).toDouble,
-                popularity = list(2).toInt
+                payoff       = list(1).toDouble,
+                popularity   = list(2).toInt
               )
           }
       }
@@ -285,17 +284,17 @@ object RowExtractor {
 }
 
 case class RaceInfo(
-    race_name: String,
-    surface: String,
-    distance: Int,
-    weather: String,
-    surface_state: String,
-    race_start: String,
-    race_number: Int,
-    surface_score: Option[Int],
-    date: String,
-    place_detail: String,
-    race_class: String
+  race_name: String,
+  surface: String,
+  distance: Int,
+  weather: String,
+  surface_state: String,
+  race_start: String,
+  race_number: Int,
+  surface_score: Option[Int],
+  date: String,
+  place_detail: String,
+  race_class: String
 )
 
 object RaceInfoDao {
@@ -375,17 +374,17 @@ select last_insert_rowid() as last_rowid
     sql"""select * from race_info where id = ${id}"""
       .map { x =>
         RaceInfo(
-          race_name = x.string("race_name"),
-          surface = x.string("surface"),
-          distance = x.int("distance"),
-          weather = x.string("weather"),
+          race_name     = x.string("race_name"),
+          surface       = x.string("surface"),
+          distance      = x.int("distance"),
+          weather       = x.string("weather"),
           surface_state = x.string("surface_state"),
-          race_start = x.string("race_start"),
-          race_number = x.int("race_number"),
+          race_start    = x.string("race_start"),
+          race_number   = x.int("race_number"),
           surface_score = x.intOpt("surface_score"),
-          date = x.string("date"),
-          place_detail = x.string("place_detail"),
-          race_class = x.string("race_class")
+          date          = x.string("date"),
+          place_detail  = x.string("place_detail"),
+          race_class    = x.string("race_class")
         )
       }
       .single
@@ -396,28 +395,28 @@ select last_insert_rowid() as last_rowid
 }
 
 case class RaceResult(
-    race_id: Int,
-    order_of_finish: String,
-    frame_number: Int,
-    horse_number: Int,
-    horse_id: String,
-    sex: String,
-    age: Int,
-    basis_weight: Double,
-    jockey_id: String,
-    finishing_time: String,
-    length: String,
-    speed_figure: Option[Int],
-    pass: String,
-    last_phase: Option[Double],
-    odds: Option[Double],
-    popularity: Option[Int],
-    horse_weight: String,
-    remark: Option[String],
-    stable: String,
-    trainer_id: String,
-    owner_id: String,
-    earning_money: Option[Double]
+  race_id: Int,
+  order_of_finish: String,
+  frame_number: Int,
+  horse_number: Int,
+  horse_id: String,
+  sex: String,
+  age: Int,
+  basis_weight: Double,
+  jockey_id: String,
+  finishing_time: String,
+  length: String,
+  speed_figure: Option[Int],
+  pass: String,
+  last_phase: Option[Double],
+  odds: Option[Double],
+  popularity: Option[Int],
+  horse_weight: String,
+  remark: Option[String],
+  stable: String,
+  trainer_id: String,
+  owner_id: String,
+  earning_money: Option[Double]
 )
 
 object DateRe {
@@ -563,11 +562,11 @@ insert or replace into race_result (
 }
 
 case class Payoff(
-    race_id: Int,
-    ticket_type: Int,
-    horse_number: String,
-    payoff: Double,
-    popularity: Int
+  race_id: Int,
+  ticket_type: Int,
+  horse_number: String,
+  payoff: Double,
+  popularity: Int
 )
 
 object PayoffDao {
@@ -617,7 +616,7 @@ object FeatureGenerator {
         .apply
     }
 
-    var count = 0
+    var count      = 0
     val totalCount = race_infos.size.toDouble
 
     race_infos.toIterator.map {
@@ -632,8 +631,8 @@ object FeatureGenerator {
 }
 
 class FeatureGenerator(
-    val race_id: Int,
-    val horse_number: Int
+  val race_id: Int,
+  val horse_number: Int
 )(implicit s: DBSession) {
   assert(horse_number > 0)
 
@@ -1203,8 +1202,8 @@ limit 1
 
     (for {
       preJockeyId <- preJockeyIdOpt
-      preWinper <- jWinperOf(preJockeyId)
-      winper <- jwinper
+      preWinper   <- jWinperOf(preJockeyId)
+      winper      <- jwinper
     } yield preJockeyId != jockey_id && preWinper < winper)
   }
 
@@ -1719,13 +1718,11 @@ object Util {
   def date2sqliteStr(date: Date): String = {
     val cal = Calendar.getInstance()
     cal.setTime(date)
-    cal.set(Calendar.HOUR_OF_DAY, 0)
-    cal.set(Calendar.MINUTE, 0)
-    cal.set(Calendar.SECOND, 0)
-    cal.set(Calendar.MILLISECOND, 0)
-    "%04d-%02d-%02d".format(cal.get(Calendar.YEAR),
-                            cal.get(Calendar.MONTH) + 1,
-                            cal.get(Calendar.DAY_OF_MONTH))
+    cal.set(Calendar.HOUR_OF_DAY,                   0)
+    cal.set(Calendar.MINUTE,                        0)
+    cal.set(Calendar.SECOND,                        0)
+    cal.set(Calendar.MILLISECOND,                   0)
+    "%04d-%02d-%02d".format(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH))
   }
 
   val str2clsMap =
@@ -1759,16 +1756,9 @@ object Util {
   }
 
   val surfaceStates =
-    Array("ダート : 稍重",
-          "ダート : 重",
-          "ダート : 良",
-          "ダート : 不良",
-          "芝 : 良",
-          "芝 : 稍重",
-          "芝 : 重",
-          "芝 : 不良")
+    Array("ダート : 稍重", "ダート : 重", "ダート : 良", "ダート : 不良", "芝 : 良", "芝 : 稍重", "芝 : 重", "芝 : 不良")
 
-  val startTimeFormat = new SimpleDateFormat("hh:mm")
+  val startTimeFormat     = new SimpleDateFormat("hh:mm")
   val finishingTimeFormat = new SimpleDateFormat("m:ss.S")
 
   val example =
@@ -1869,7 +1859,7 @@ object Main {
         }
       case Some("genfeature") =>
         GlobalSettings.loggingSQLAndTime = new LoggingSQLAndTimeSettings(
-          enabled = false,
+          enabled  = false,
           logLevel = 'info
         )
         init()
