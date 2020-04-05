@@ -1855,8 +1855,8 @@ object Main {
   def main(args: Array[String]): Unit = {
     args.headOption match {
       case Some("collecturl") =>
-        //過去10年分のURLを収集する
-        RaceListScraper.scrape(period = 12 * 10)
+        //過去5年分のURLを収集する
+        RaceListScraper.scrape(period = 12 * 6)
       case Some("scrapehtml") =>
         RaceScraper.scrape()
       case Some("extract") =>
