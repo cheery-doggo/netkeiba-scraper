@@ -2,7 +2,7 @@ import java.io.{File, StringReader}
 import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
 
-import netkeiba.RaceListScraper
+import netkeiba.{RaceListScraper, RaceScraper}
 import nu.validator.htmlparser.sax.HtmlParser
 import org.apache.commons.io.{FileUtils, FilenameUtils}
 import org.openqa.selenium.By
@@ -12,51 +12,6 @@ import scalikejdbc._
 
 import scala.util.Try
 import scala.xml.parsing.NoBindingFactoryAdapter
-
-object RaceScraper {
-
-  val mail     = "enter your email address"
-  val password = "enter your password"
-
-  def scrape() = {
-
-    val driver = new HtmlUnitDriver(false)
-
-    //login
-    driver.get("https://account.netkeiba.com/?pid=login")
-    driver.findElement(By.name("login_id")).sendKeys(mail)
-    driver.findElement(By.name("pswd")).sendKeys(password + "\n")
-
-    val re = """/race/(\d+)/""".r
-
-    val nums =
-      io.Source.fromFile("race_url.txt").getLines.toList.map { s =>
-        val re(x) = re.findFirstIn(s).get; x
-      }
-
-    val urls = nums.map(s => "http://db.netkeiba.com/race/" + s)
-
-    val folder = new File("html")
-    if (!folder.exists()) folder.mkdir()
-
-    var i = 0
-
-    nums.zip(urls).map {
-      case (num, url) =>
-        i += 1
-        println("" + i + ":downloading " + url)
-        val file = new File(folder, num + ".html")
-        if (!file.exists()) {
-          driver.get(url)
-          //↓ここあんまり短くしないでね！
-          Thread.sleep(5000)
-          val html = driver.getPageSource()
-          FileUtils.writeStringToFile(file, html)
-        }
-    }
-  }
-
-}
 
 object RowExtractor {
 
@@ -1845,8 +1800,8 @@ object Main {
   def main(args: Array[String]): Unit = {
     args.headOption match {
       case Some("collecturl") =>
-        //過去5年分のURLを収集する
-        RaceListScraper.scrape(period = 12 * 6)
+        // 過去6年分のURLを収集する
+        RaceListScraper.scrape(period = 1 * 1)
       case Some("scrapehtml") =>
         RaceScraper.scrape()
       case Some("extract") =>
