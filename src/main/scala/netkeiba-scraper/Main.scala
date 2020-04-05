@@ -1,22 +1,17 @@
-import org.openqa.selenium.firefox.FirefoxDriver
-import org.openqa.selenium.htmlunit.HtmlUnitDriver
-import org.openqa.selenium.By
-import org.openqa.selenium.WebElement
-import org.apache.commons.io.FileUtils
-import java.lang.Thread
+import java.io.{File, StringReader}
 import java.text.SimpleDateFormat
-import util.Try
-import java.util.Date
-import java.util.Calendar
-import scala.xml.parsing.NoBindingFactoryAdapter
-import org.xml.sax.InputSource
+import java.util.{Calendar, Date}
+
+import netkeiba.RaceListScraper
 import nu.validator.htmlparser.sax.HtmlParser
-import nu.validator.htmlparser.common.XmlViolationPolicy
-import org.apache.commons.io.FileUtils
-import org.apache.commons.io.FilenameUtils
-import java.io.File
-import java.io.StringReader
+import org.apache.commons.io.{FileUtils, FilenameUtils}
+import org.openqa.selenium.By
+import org.openqa.selenium.htmlunit.HtmlUnitDriver
+import org.xml.sax.InputSource
 import scalikejdbc._
+
+import scala.util.Try
+import scala.xml.parsing.NoBindingFactoryAdapter
 
 object RaceScraper {
 
@@ -284,63 +279,6 @@ object RowExtractor {
           RaceResultDao.insert(raceResult)
         }
       }
-    }
-  }
-
-}
-
-object RaceListScraper {
-
-  def extractRaceList(baseUrl: String) = {
-    "/race/list/\\d+/".r
-      .findAllIn(io.Source.fromURL(baseUrl, "EUC-JP").mkString)
-      .toList
-      .map("http://db.netkeiba.com" + _)
-      .distinct
-  }
-
-  def extractPrevMonth(baseList: String) = {
-    "/\\?pid=[^\"]+".r
-      .findFirstIn(
-        io.Source
-          .fromURL(baseList, "EUC-JP")
-          .getLines
-          .filter(_.contains("race_calendar_rev_02.gif"))
-          .toList
-          .head)
-      .map("http://db.netkeiba.com" + _)
-      .get
-  }
-
-  def extractRace(listUrl: String) = {
-    "/race/\\d+/".r
-      .findAllIn(io.Source.fromURL(listUrl, "EUC-JP").mkString)
-      .toList
-      .map("http://db.netkeiba.com" + _)
-      .distinct
-  }
-
-  def scrape(period: Int) = {
-    var baseUrl = "http://db.netkeiba.com/?pid=race_top"
-    var i = 0
-
-    while (i < period) {
-      Thread.sleep(1000)
-      val raceListPages =
-        extractRaceList(baseUrl)
-      val racePages =
-        raceListPages.map { url =>
-          Thread.sleep(1000)
-          extractRace(url)
-        }.flatten
-
-      racePages.foreach { url =>
-        FileUtils.writeStringToFile(new File("race_url.txt"), url + "\n", true)
-      }
-
-      baseUrl = extractPrevMonth(baseUrl)
-      println(i + ": collecting URLs from " + baseUrl)
-      i += 1
     }
   }
 
