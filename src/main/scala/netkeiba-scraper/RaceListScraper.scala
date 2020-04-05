@@ -1,6 +1,8 @@
 package netkeiba
 
 import java.io.File
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 import org.apache.commons.io.FileUtils
 
@@ -36,11 +38,24 @@ object RaceListScraper {
   }
 
   private def extractRaceList(baseUrl: String) = {
-    "/race/list/\\d+/".r
-      .findAllIn(io.Source.fromURL(baseUrl, "EUC-JP").mkString)
-      .toList
-      .map("http://db.netkeiba.com" + _)
-      .distinct
+
+    def range(from: LocalDate, to: LocalDate): Seq[LocalDate] =
+      Range(0, from.until(to, ChronoUnit.DAYS).toInt + 1, 1).map(from.plusDays(_))
+
+    // 5年分の日付のリストを作成する。
+    val to = LocalDate.now
+    val from = to.plusDays(365 * 5)
+    val targetDateSeq = range(from, to)
+
+    val a = targetDateSeq.map{ targetDate =>
+      val targetUrl = s"https://db.netkeiba.com/race/list/${targetDate}/"
+      "/race/\\d+/"
+        .r
+        .findAllIn(io.Source.fromURL(targetUrl, "EUC-JP").mkString)
+        .toList
+        .map("http://db.netkeiba.com" + _)
+    }.distinct.toList.flatten
+    a
   }
 
   private def extractRace(listUrl: String) = {
